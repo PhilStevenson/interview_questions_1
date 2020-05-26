@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: daemon-deployment
+spec:
+  # slector must match the template to keep track of pods created by this deployment.
+  selector:
+    matchLabels:
+      app: daemon
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: daemon
+    spec:
+      containers:
+        # Single container from image repository, if private a pull secret would be required.
+        - name: daemon
+          image: repo/daemon:v1
+          ports:
+            - containerPort: 3000
+          # readiness checks that the service is ready to accept connections this ideally would be changed to a HTTP request to a /health enpoint if this service is HTTP based.
+          readinessProbe:
+            tcpSocket:
+              port: 3000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          # Liveness checks the services is listening, if it fails this health check will restart the pod.
+          livenessProbe:
+            tcpSocket:
+              port: 3000
+            initialDelaySeconds: 5
+            periodSeconds: 10
