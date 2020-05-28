@@ -25,3 +25,24 @@ Question 3
 `go run santander_cycles/main.go`
 
 [Available Santander Cycles Golang](./santander_cycles/main.go)
+
+Execute tests:
+
+`go test -v -cover ./santander_cycles`
+
+
+# Santander Cycles Service
+
+[Available Santander Cycles Web Service Golang](./santander_cycles_service/main.go)
+
+Execute tests:
+
+`go test -v -cover ./santander_cycles_service`
+
+Start a local service:
+
+`go run ./santander_cycles_service`
+
+Start docker local service:
+
+`docker-compose up`
