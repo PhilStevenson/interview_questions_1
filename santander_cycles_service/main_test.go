@@ -119,3 +119,35 @@ func bikePointSearchMock(w http.ResponseWriter, r *http.Request) {
 func bikePointLookupMock(w http.ResponseWriter, r *http.Request) {
 	_, _ = w.Write([]byte(testGetNumberAvailableBikes))
 }
+
+func TestRootEndpoint(t *testing.T) {
+	// Test against mock api
+	srv := serverMock()
+	defer srv.Close()
+
+	serviceEndpoint = srv.URL
+
+	req, err := http.NewRequest("GET", "/", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	rr := httptest.NewRecorder()
+	handler := http.HandlerFunc(rootHandler)
+
+	handler.ServeHTTP(rr, req)
+
+	if status := rr.Code; status != http.StatusOK {
+		t.Errorf("handler returned wrong status code: got %v want %v",
+			status, http.StatusOK)
+	}
+
+	expected := `Welcome to the Bank of England Museum, Bank bike point checker!
+There is currently 2 bike(s) at bike point: 'BikePoints_340'
+which is located at: Bank of England Museum, Bank
+`
+	if rr.Body.String() != expected {
+		t.Errorf("handler returned unexpected body: got\n%v want\n%v",
+			rr.Body.String(), expected)
+	}
+}
