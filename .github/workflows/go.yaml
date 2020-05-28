@@ -1,0 +1,13 @@
+name: Golang CI
+
+on: [push]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Go test santander_cycles
+      run: go test -v -cover ./santander_cycles
+    - name: Go test santander_cycles_service
+      run: go test -v -cover ./santander_cycles_service
