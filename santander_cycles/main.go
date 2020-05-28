@@ -11,6 +11,8 @@ import (
 
 const bikePointName string = "Bank of England Museum, Bank"
 
+var serviceEndpoint = "https://api.tfl.gov.uk"
+
 type bikePoint struct {
 	ID                   string              `json:"id"`
 	URL                  string              `json:"url"`
@@ -18,8 +20,8 @@ type bikePoint struct {
 	CommonName           string              `json:"commonName"`
 	PlaceType            string              `json:"placeType"`
 	AdditionalProperties []bikePointAddProps `json:"additionalProperties"`
-	Lat                  float32             `json:"lat"`
-	Lon                  float32             `json:"lon"`
+	Lat                  float64             `json:"lat"`
+	Lon                  float64             `json:"lon"`
 }
 
 type bikePointAddProps struct {
@@ -33,7 +35,7 @@ type bikePointAddProps struct {
 // Gets the basic information of a single bike point by name.
 func (bp *bikePoint) getBikePointByName(bikePointName string) error {
 	var bikePointQuery = url.QueryEscape(bikePointName)
-	var bikePointGetURL = fmt.Sprintf("https://api.tfl.gov.uk/BikePoint/Search?query=%s", bikePointQuery)
+	var bikePointGetURL = fmt.Sprintf("%s/BikePoint/Search?query=%s", serviceEndpoint, bikePointQuery)
 
 	response, err := http.Get(bikePointGetURL)
 	if err != nil {
@@ -68,7 +70,7 @@ func (bp *bikePoint) getNumberAvailableBikes() (int, error) {
 	}
 
 	var bikePointID = url.QueryEscape(bp.ID)
-	var bikePointGetURL = fmt.Sprintf("https://api.tfl.gov.uk/BikePoint/%s", bikePointID)
+	var bikePointGetURL = fmt.Sprintf("%s/BikePoint/%s", serviceEndpoint, bikePointID)
 
 	response, err := http.Get(bikePointGetURL)
 	if err != nil {
