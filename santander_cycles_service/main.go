@@ -99,6 +99,13 @@ func (bp *bikePoint) getNumberAvailableBikes() (int, error) {
 }
 
 func rootHandler(w http.ResponseWriter, r *http.Request) {
+	// Not found if extra path is requested.
+	if r.URL.Path != "/" {
+		w.WriteHeader(http.StatusNotFound)
+		fmt.Fprint(w, "Error: ", http.StatusNotFound)
+		return
+	}
+
 	fmt.Fprintf(w, "Welcome to the %s bike point checker!\n", bikePointName)
 	fmt.Println("Handling request: rootHandler")
 
@@ -121,8 +128,29 @@ func rootHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "There is currently %v bike(s) at bike point: '%s'\nwhich is located at: %s\n", numberBikes, bp.ID, bp.CommonName)
 }
 
+func healthLivenessHandler(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("Handling request: healthLivenessHandler")
+	fmt.Fprint(w, "status: healthy")
+}
+
+func healthReadinessHandler(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("Handling request: healthReadinessHandler")
+
+	response, err := http.Get(serviceEndpoint)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		fmt.Fprint(w, "status: unhealthy")
+	} else {
+		fmt.Println("Readiness Health check: Response from API service: ", response.Status)
+		fmt.Fprint(w, "status: healthy")
+	}
+}
+
 func main() {
 	println("Starting santander cycles service...\nlistening on port 3000")
 	http.HandleFunc("/", rootHandler)
+	http.HandleFunc("/health", healthReadinessHandler)
+	http.HandleFunc("/health/readiness", healthReadinessHandler)
+	http.HandleFunc("/health/liveness", healthLivenessHandler)
 	log.Fatal(http.ListenAndServe(":3000", nil))
 }
