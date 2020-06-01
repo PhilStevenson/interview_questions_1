@@ -100,6 +100,7 @@ func TestGetNumberAvailableBikes(t *testing.T) {
 
 func serverMock() *httptest.Server {
 	handler := http.NewServeMux()
+	handler.HandleFunc("/", rootMock)
 	handler.HandleFunc("/BikePoint/Search", bikePointSearchMock)
 	handler.HandleFunc("/BikePoint/BikePoints_340", bikePointLookupMock)
 
@@ -118,6 +119,10 @@ func bikePointSearchMock(w http.ResponseWriter, r *http.Request) {
 
 func bikePointLookupMock(w http.ResponseWriter, r *http.Request) {
 	_, _ = w.Write([]byte(testGetNumberAvailableBikes))
+}
+
+func rootMock(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusOK)
 }
 
 func TestRootEndpoint(t *testing.T) {
@@ -146,6 +151,81 @@ func TestRootEndpoint(t *testing.T) {
 There is currently 2 bike(s) at bike point: 'BikePoints_340'
 which is located at: Bank of England Museum, Bank
 `
+	if rr.Body.String() != expected {
+		t.Errorf("handler returned unexpected body: got\n%v want\n%v",
+			rr.Body.String(), expected)
+	}
+}
+
+func TestHealthLivenessEndpoint(t *testing.T) {
+	req, err := http.NewRequest("GET", "/", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	rr := httptest.NewRecorder()
+	handler := http.HandlerFunc(healthLivenessHandler)
+
+	handler.ServeHTTP(rr, req)
+
+	if status := rr.Code; status != http.StatusOK {
+		t.Errorf("handler returned wrong status code: got %v want %v",
+			status, http.StatusOK)
+	}
+
+	expected := `status: healthy`
+	if rr.Body.String() != expected {
+		t.Errorf("handler returned unexpected body: got\n%v want\n%v",
+			rr.Body.String(), expected)
+	}
+}
+
+func TestHealthReadinessEndpointGoodService(t *testing.T) {
+	// Test against mock api
+	srv := serverMock()
+	defer srv.Close()
+
+	serviceEndpoint = srv.URL
+
+	req, err := http.NewRequest("GET", "/", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	rr := httptest.NewRecorder()
+	handler := http.HandlerFunc(healthReadinessHandler)
+
+	handler.ServeHTTP(rr, req)
+
+	if status := rr.Code; status != http.StatusOK {
+		t.Errorf("handler returned wrong status code: got %v want %v",
+			status, http.StatusOK)
+	}
+
+	expected := `status: healthy`
+	if rr.Body.String() != expected {
+		t.Errorf("handler returned unexpected body: got\n%v want\n%v",
+			rr.Body.String(), expected)
+	}
+}
+
+func TestHealthReadinessEndpointBadService(t *testing.T) {
+	req, err := http.NewRequest("GET", "/", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	rr := httptest.NewRecorder()
+	handler := http.HandlerFunc(healthReadinessHandler)
+
+	handler.ServeHTTP(rr, req)
+
+	if status := rr.Code; status != http.StatusInternalServerError {
+		t.Errorf("handler returned wrong status code: got %v want %v",
+			status, http.StatusInternalServerError)
+	}
+
+	expected := `status: unhealthy`
 	if rr.Body.String() != expected {
 		t.Errorf("handler returned unexpected body: got\n%v want\n%v",
 			rr.Body.String(), expected)
