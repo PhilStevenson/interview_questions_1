@@ -49,3 +49,5 @@ jobs:
         kubectl create namespace cycles
         helm install --wait --namespace cycles cycles ./helm/santander-cycles-service --set image.tag="${{ github.sha }}"
         kubectl get pods --all-namespaces
+        kubectl --namespace cycles port-forward svc/cycles-santander-cycles-service 8080:80 &
+        sleep 5 && curl --retry 5 --retry-delay 1 -f localhost:8080
