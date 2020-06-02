@@ -37,7 +37,7 @@ jobs:
           # Strip git ref prefix from version
           VERSION=$(echo "${{ github.sha	 }}" | sed -e 's,.*/\(.*\),\1,')
           # Strip "v" prefix from tag name
-          [[ "${{ github.sha	 }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
+          [[ "${{ github.sha }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
           # Use Docker `latest` tag convention
           [ "${{ github.ref }}" == "refs/heads/master" ] && VERSION=latest
           echo IMAGE_ID=$IMAGE_ID
@@ -56,5 +56,6 @@ jobs:
     - name: Testing
       run: |
         kubectl cluster-info
-        kubectl get pods -n kube-system
-        echo "current-context:" $(kubectl config current-context)
+        kubectl create namespace cycles
+        helm install --wait --namespace cycles cycles ./helm/santander-cycles-service --set image.tag="${{ github.sha }}"
+        kubectl get pods --all-namespaces
