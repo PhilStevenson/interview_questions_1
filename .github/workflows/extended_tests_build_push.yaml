@@ -15,7 +15,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Build image
-        run: docker build ./santander_cycles_service --tag $IMAGE_NAME
+        run: docker build ./santander_cycles_service --tag $IMAGE_NAME:${{ github.sha	 }}
       - name: Log into registry
         run: echo "${{ secrets.DOCKERHUB }}" | docker login  -u philstevenson --password-stdin
       - name: Push image
@@ -32,8 +32,9 @@ jobs:
           [ "${{ github.ref }}" == "refs/heads/master" ] && VERSION=latest
           echo IMAGE_ID=$IMAGE_ID
           echo VERSION=$VERSION
-          docker tag $IMAGE_NAME:latest $IMAGE_ID:$VERSION
+          docker tag $IMAGE_NAME:${{ github.sha	 }} $IMAGE_ID:$VERSION
           docker push $IMAGE_ID:$VERSION
+          docker push $IMAGE_ID:${{ github.sha	 }}
 
   kind-helm:
     needs: build-push
