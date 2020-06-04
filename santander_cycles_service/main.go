@@ -125,7 +125,11 @@ func rootHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Display the information to the user
-	fmt.Fprintf(w, "There is currently %v bike(s) at bike point: '%s'\nwhich is located at: %s\n", numberBikes, bp.ID, bp.CommonName)
+	if numberBikes == 1 {
+		fmt.Fprintf(w, "There is currently %v bike at bike point: '%s'\nwhich is located at: %s\n", numberBikes, bp.ID, bp.CommonName)
+	} else {
+		fmt.Fprintf(w, "There is currently %v bikes at bike point: '%s'\nwhich is located at: %s\n", numberBikes, bp.ID, bp.CommonName)
+	}
 }
 
 func healthLivenessHandler(w http.ResponseWriter, r *http.Request) {
