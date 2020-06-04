@@ -148,7 +148,7 @@ func TestRootEndpoint(t *testing.T) {
 	}
 
 	expected := `Welcome to the Bank of England Museum, Bank bike point checker!
-There is currently 2 bike(s) at bike point: 'BikePoints_340'
+There is currently 2 bikes at bike point: 'BikePoints_340'
 which is located at: Bank of England Museum, Bank
 `
 	if rr.Body.String() != expected {
