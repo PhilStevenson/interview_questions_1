@@ -68,7 +68,7 @@ const testGetNumberAvailableBikes = `{
       "category": "Description",
       "key": "NbBikes",
       "sourceSystemKey": "BikePoints",
-      "value": "2",
+      "value": "3",
       "modified": "2020-05-28T11:12:27.847Z"
     }
   ],
